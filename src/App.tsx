@@ -18,6 +18,11 @@ import { nexo } from './lib/nexo'
 import { api } from './lib/api'
 import { ChatMessage } from './components/ChatMessage'
 
+
+import MainIcon from './assets/main.svg?react'; 
+import BtnSendIcon from './assets/sendBtn.svg?react';
+
+
 type ChatMessageItem = {
   id: string
   role: 'user' | 'assistant'
@@ -359,8 +364,8 @@ function App() {
             {messages.length === 0 ? (
               <Box className="na-content-inner">
                 <Box className="na-hero">
-                  <Box className="na-hero-icon">
-                    <img src={imgHero} alt="" />
+                  <Box className="na-hero-icon" data-mode="light">
+                    <MainIcon  />
                   </Box>
                   <Text className="na-hero-title">Bem-vindo ao Nuvemshop AI</Text>
                   <Text className="na-hero-subtitle">
@@ -369,7 +374,7 @@ function App() {
                   </Text>
                 </Box>
 
-                <Box className="na-feature-grid">
+                {/* <Box className="na-feature-grid">
                   {QUICK_CARDS.map((card) => (
                     <Box key={card.id} className="na-feature-card">
                       <Box className="na-feature-icon">
@@ -381,7 +386,7 @@ function App() {
                       </Box>
                     </Box>
                   ))}
-                </Box>
+                </Box> */}
 
                 <Box className="na-stats">
                   <Box className="na-stat">
@@ -423,7 +428,7 @@ function App() {
 
           <Box as="form" onSubmit={handleSubmit} className="na-input-area">
             <Box className="na-input-row">
-              <Box className="na-input-actions">
+              {/* <Box className="na-input-actions">
                 <Button
                   type="button"
                   appearance="transparent"
@@ -438,7 +443,7 @@ function App() {
                 >
                   <img src={imgDots} alt="" />
                 </Button>
-              </Box>
+              </Box> */}
 
               <Box className="na-input-box">
                 <ChatInput aiFocused={isLoading} className="na-chat-input">
@@ -462,18 +467,20 @@ function App() {
                   className="na-send-button"
                   disabled={!input.trim() || isLoading}
                 >
-                  <img src={imgSend} alt="" />
+                  <Box data-mode="light">
+                    <BtnSendIcon />
+                  </Box>
                 </Button>
               </Box>
 
-              <Button
+              {/* <Button
                 type="button"
                 appearance="transparent"
                 className="na-voice-button"
                 disabled
               >
                 <img src={imgVoice} alt="" />
-              </Button>
+              </Button> */}
             </Box>
 
             <Box className="na-tools-row">
