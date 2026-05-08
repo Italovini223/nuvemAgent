@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, Text } from '@nimbus-ds/components'
 
 type ChatMessageProps = {
@@ -15,16 +15,9 @@ type ChatMessageProps = {
 
 export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessageProps) {
   const isUser = message.role === 'user'
-  const prefix = isUser ? 'lojista ~ %' : 'nuvem-agent $'
-  const logs = message.logs ?? []
   const showCursor = isLast && (message.pending || message.streaming)
   const [visibleText, setVisibleText] = useState(
     message.streaming ? '' : message.content,
-  )
-
-  const logLines = useMemo(
-    () => logs.map((entry) => `> tool ${entry}`),
-    [logs],
   )
 
   useEffect(() => {
@@ -70,53 +63,25 @@ export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessagePr
   return (
     <Box display="flex" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
       <Box
-        padding="2"
-        backgroundColor="neutral-background"
-        borderWidth="1"
-        borderStyle="solid"
-        borderColor="neutral-surfaceHighlight"
-        className={message.pending ? 'terminal-message is-pending' : 'terminal-message'}
-        style={{ maxWidth: '76%', width: 'fit-content' }}
+        className={`na-message${isUser ? ' is-user' : ' is-assistant'}${message.pending ? ' is-pending' : ''}`}
       >
         <Box display="flex" flexDirection="column" gap="1">
-          <Text fontSize="caption" color="neutral-textLow" className="terminal-prefix">
-            {prefix}
+          <Text className="na-message-label">
+            {isUser ? 'Lojista' : 'Nuvemshop AI'}
           </Text>
-          {logLines.length > 0 ? (
-            <Box display="flex" flexDirection="column" gap="1" className="terminal-logs">
-              <Text fontSize="caption" color="neutral-textLow">
-                logs de execucao
-              </Text>
-              {logLines.map((line, index) => (
-                <Text
-                  key={`${line}-${index}`}
-                  fontSize="caption"
-                  color="neutral-textLow"
-                  className="terminal-log-line"
-                  style={{ animationDelay: `${index * 120}ms` }}
-                >
-                  {line}
-                </Text>
-              ))}
-            </Box>
-          ) : null}
           {message.pending ? (
-            <Text color="neutral-textLow">
+            <Text className="na-message-text">
               <span className="typing-dots">
                 <span className="dot"></span>
                 <span className="dot"></span>
                 <span className="dot"></span>
               </span>
-              {showCursor ? <span className="terminal-cursor">_</span> : null}
+              {showCursor ? <span className="na-cursor">_</span> : null}
             </Text>
           ) : (
-            <Text
-              color="neutral-textHigh"
-              whiteSpace="pre-wrap"
-              className="terminal-message-text"
-            >
+            <Text className="na-message-text" whiteSpace="pre-wrap">
               {visibleText || '...'}
-              {showCursor ? <span className="terminal-cursor">_</span> : null}
+              {showCursor ? <span className="na-cursor">_</span> : null}
             </Text>
           )}
         </Box>
