@@ -1,0 +1,191 @@
+:root {
+  --terminal-border: #d1d1d1;
+  --terminal-bg: #ffffff;
+  --terminal-text: #0a0a0a;
+  --terminal-muted: #5d5d5d;
+  --terminal-font: 'Monaco', 'Menlo', 'Cascadia Code', ui-monospace, SFMono-Regular,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+body[data-theme='light'] {
+  --terminal-border: var(--nimbus-colors-neutral-surfaceHighlight, #d1d1d1);
+  --terminal-bg: var(--nimbus-colors-neutral-background, #ffffff);
+  --terminal-panel-bg: var(--nimbus-colors-neutral-surface, #f6f6f6);
+  --terminal-input-bg: var(--nimbus-colors-neutral-surfaceHighlight, #e7e7e7);
+  --terminal-text: var(--nimbus-colors-neutral-textHigh, #0a0a0a);
+  --terminal-muted: var(--nimbus-colors-neutral-textLow, #5d5d5d);
+}
+
+body[data-theme='dark'] {
+  --terminal-border: var(--nimbus-colors-neutral-surfaceHighlight, #2b2b2b);
+  --terminal-bg: var(--nimbus-colors-neutral-background, #151515);
+  --terminal-panel-bg: var(--nimbus-colors-neutral-surface, #1f2020);
+  --terminal-input-bg: var(--nimbus-colors-neutral-surfaceHighlight, #2b2b2b);
+  --terminal-text: var(--nimbus-colors-neutral-textHigh, #f2f2f2);
+  --terminal-muted: var(--nimbus-colors-neutral-textLow, #b0b0b0);
+}
+
+body,
+#root,
+.terminal-root {
+  background: var(--terminal-bg);
+  color: var(--terminal-text);
+  font-family: var(--terminal-font);
+}
+
+.terminal-root input,
+.terminal-root textarea {
+  font-family: var(--terminal-font);
+  color: var(--terminal-text);
+  caret-color: var(--terminal-text);
+}
+
+.terminal-chat,
+.terminal-input,
+.terminal-skills,
+.terminal-skill-tags {
+  font-family: var(--terminal-font);
+}
+
+.terminal-chat {
+  background: var(--terminal-panel-bg);
+}
+
+.terminal-message {
+  border-radius: 0;
+}
+
+.terminal-message-text,
+.terminal-prefix {
+  font-family: inherit;
+}
+
+.terminal-input .terminal-input-row {
+  padding: 8px 0;
+  border-top: 1px solid var(--terminal-border);
+  border-bottom: 1px solid var(--terminal-border);
+  background: var(--terminal-input-bg);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.terminal-input .terminal-input-field,
+.terminal-input textarea {
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--terminal-text) !important;
+  -webkit-text-fill-color: var(--terminal-text) !important;
+}
+
+.terminal-input textarea::placeholder,
+.terminal-input input::placeholder {
+  color: var(--terminal-muted);
+}
+
+.terminal-input textarea:focus {
+  outline: none;
+}
+
+.terminal-input-row:focus-within {
+  box-shadow: 0 0 0 1px var(--terminal-border), 0 0 16px rgba(86, 156, 255, 0.35);
+  background: color-mix(in srgb, var(--terminal-input-bg) 80%, #1b3b6f 20%);
+}
+
+.terminal-input-row:focus-within .terminal-prefix {
+  color: var(--terminal-text);
+}
+
+.terminal-input .terminal-input-field {
+  flex: 1;
+}
+
+.terminal-skills-panel {
+  border: 1px solid var(--terminal-border);
+  border-radius: 0;
+  background: var(--terminal-panel-bg);
+  color: var(--terminal-text);
+}
+
+.terminal-skills-panel * {
+  color: var(--terminal-text);
+}
+
+.terminal-skill-checkbox label,
+.terminal-skill-checkbox span {
+  font-family: inherit;
+}
+
+.terminal-skill-tag {
+  border-radius: 0;
+  background: transparent;
+}
+
+.terminal-skill-tags {
+  border-bottom: 1px solid var(--terminal-border);
+  padding-bottom: 8px;
+}
+
+.terminal-chat table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--terminal-border);
+  box-shadow: none;
+}
+
+.terminal-chat table th,
+.terminal-chat table td {
+  border: 1px solid var(--terminal-border);
+  padding: 6px 8px;
+  text-align: left;
+  font-family: inherit;
+}
+
+.terminal-chat table th {
+  background: transparent;
+  color: var(--terminal-text);
+}
+
+.terminal-chat table td {
+  color: var(--terminal-text);
+}
+
+.terminal-chat-input,
+.terminal-chat-input > div {
+  background: transparent !important;
+  border: none !important;
+}
+
+.terminal-logs {
+  margin-top: 4px;
+}
+
+.terminal-log-line {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: terminalFadeIn 0.35s ease forwards;
+}
+
+.terminal-cursor {
+  display: inline-block;
+  margin-left: 4px;
+  animation: terminalBlink 0.9s steps(1) infinite;
+}
+
+@keyframes terminalFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes terminalBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}

@@ -1,8 +1,20 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import '@nimbus-ds/styles/dist/index.css'
+import '@nimbus-ds/styles/dist/themes/dark.css'
 import { AppShell, ChatInput } from '@nimbus-ds/patterns'
-import { Badge, Box, Button, Card, Checkbox, Popover, Skeleton, Text } from '@nimbus-ds/components'
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  Popover,
+  Skeleton,
+  Text,
+  Toggle,
+} from '@nimbus-ds/components'
 import { Send, Wrench } from 'lucide-react'
+import { ThemeProvider } from '@nimbus-ds/styles'
 import { connect, iAmReady } from '@tiendanube/nexo'
 import { nexo } from './lib/nexo'
 import { api } from './lib/api'
@@ -13,6 +25,8 @@ type ChatMessageItem = {
   role: 'user' | 'assistant'
   content: string
   pending?: boolean
+  streaming?: boolean
+  logs?: string[]
 }
 
 const SKILL_CATEGORIES = [
@@ -58,6 +72,12 @@ const SKILL_CATEGORIES = [
   },
 ]
 
+const SKILL_OPTIONS = SKILL_CATEGORIES.flatMap((category) => category.skills)
+const SKILL_LABELS = SKILL_OPTIONS.reduce<Record<string, string>>((acc, skill) => {
+  acc[skill.id] = skill.label
+  return acc
+}, {})
+
 function App() {
   const [isConnected, setIsConnected] = useState(false)
   const [input, setInput] = useState('')
@@ -67,8 +87,14 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [skillsOpen, setSkillsOpen] = useState(false)
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark')
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
   const selectedCount = selectedSkills.length
+  const selectedSkillLabels = useMemo(
+    () => selectedSkills.map((skill) => SKILL_LABELS[skill] ?? skill),
+    [selectedSkills],
+  )
 
   const toggleSkill = (skillId: string) => {
     setSelectedSkills((current) =>
@@ -106,12 +132,17 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    document.body.dataset.theme = themeMode
+  }, [themeMode])
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     const trimmed = input.trim()
 
     if (!trimmed || isLoading) return
 
+    const requestSkills = [...selectedSkills]
     const pendingId = crypto.randomUUID()
     const userMessage: ChatMessageItem = {
       id: crypto.randomUUID(),
@@ -124,6 +155,7 @@ function App() {
       role: 'assistant',
       content: '',
       pending: true,
+      logs: requestSkills,
     }
 
     setMessages((current) => [...current, userMessage, pendingMessage])
@@ -134,7 +166,7 @@ function App() {
     try {
       const response = await api.post('/api/chat', {
         message: trimmed,
-        ...(selectedSkills.length > 0 ? { toolsToLoad: selectedSkills } : {}),
+        ...(requestSkills.length > 0 ? { toolsToLoad: requestSkills } : {}),
       })
 
       const payload = response.data ?? {}
@@ -146,6 +178,8 @@ function App() {
         role: 'assistant',
         content: reply || 'Resposta recebida, mas sem conteudo para exibir.',
         pending: false,
+        streaming: true,
+        logs: requestSkills,
       }
 
       setMessages((current) =>
@@ -153,15 +187,26 @@ function App() {
           message.id === pendingId ? assistantMessage : message,
         ),
       )
+      setStreamingMessageId(pendingId)
     } catch (requestError) {
       console.error('Chat request failed', requestError)
       setMessages((current) =>
         current.filter((message) => message.id !== pendingId),
       )
       setError('Ocorreu um erro ao enviar a mensagem.')
-    } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleStreamComplete = (messageId: string) => {
+    if (streamingMessageId !== messageId) return
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === messageId ? { ...message, streaming: false } : message,
+      ),
+    )
+    setStreamingMessageId(null)
+    setIsLoading(false)
   }
 
   if (!isConnected) {
@@ -185,26 +230,50 @@ function App() {
   }
 
   return (
-    <AppShell contentProperties={{ height: '100vh' }}>
-      <AppShell.Header
-        leftSlot={
-          <Box display="flex" flexDirection="column">
-            <Text fontSize="caption" color="neutral-textLow">
-              Embedded App
-            </Text>
-            <Text fontWeight="bold" color="neutral-textHigh">
-              Nuvemshop AI Assistant
-            </Text>
-          </Box>
-        }
-        rightSlot={
-          <Text fontSize="caption" color="neutral-textLow">
-            Conectado
-          </Text>
-        }
-      />
-      <AppShell.Body padding="4">
-        <Box display="flex" flexDirection="column" gap="4" width="100%" maxWidth="1000px" marginLeft="auto" marginRight="auto">
+    <ThemeProvider theme={themeMode === 'dark' ? 'dark' : 'base'}>
+      <AppShell
+        contentProperties={{ height: '100vh', backgroundColor: 'neutral-background' }}
+        className="terminal-root"
+      >
+        <AppShell.Header
+          leftSlot={
+            <Box display="flex" flexDirection="column">
+              <Text fontSize="caption" color="neutral-textLow">
+                Embedded App
+              </Text>
+              <Text fontWeight="bold" color="neutral-textHigh">
+                Nuvemshop AI Assistant
+              </Text>
+            </Box>
+          }
+          rightSlot={
+            <Box display="flex" alignItems="center" gap="3">
+              <Text fontSize="caption" color="neutral-textLow">
+                Conectado
+              </Text>
+              <Toggle
+                name="theme-mode"
+                label={themeMode === 'dark' ? 'Dark' : 'Light'}
+                active={themeMode === 'dark'}
+                onChange={() =>
+                  setThemeMode((current) =>
+                    current === 'dark' ? 'light' : 'dark',
+                  )
+                }
+              />
+            </Box>
+          }
+        />
+        <AppShell.Body padding="4">
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap="4"
+            width="100%"
+            maxWidth="1000px"
+            marginLeft="auto"
+            marginRight="auto"
+          >
           <Box
             display="flex"
             flexDirection="column"
@@ -212,10 +281,11 @@ function App() {
             padding="3"
             overflow="auto"
             backgroundColor="neutral-background"
-            borderRadius="2"
-            borderColor="neutral-surface"
+            borderRadius="0"
+            borderColor="neutral-surfaceHighlight"
             borderWidth="1"
             borderStyle="solid"
+            className="terminal-chat"
             style={{ flex: 1, minHeight: 0 }}
           >
             {messages.length === 0 ? (
@@ -230,8 +300,13 @@ function App() {
                 </Text>
               </Box>
             ) : (
-              messages.map((message) => (
-                <ChatMessage key={message.id} message={message} />
+              messages.map((message, index) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  isLast={index === messages.length - 1}
+                  onStreamComplete={handleStreamComplete}
+                />
               ))
             )}
           </Box>
@@ -257,6 +332,7 @@ function App() {
             justifyContent="space-between"
             flexWrap="wrap"
             gap="2"
+            className="terminal-skills"
           >
             <Popover
               position="bottom-start"
@@ -268,6 +344,7 @@ function App() {
                   flexDirection="column"
                   gap="3"
                   padding="3"
+                  className="terminal-skills-panel"
                   style={{ width: '360px', maxWidth: '90vw' }}
                 >
                   <Text fontWeight="bold" color="neutral-textHigh">
@@ -286,6 +363,7 @@ function App() {
                             label={skill.label}
                             checked={selectedSkills.includes(skill.id)}
                             onChange={() => toggleSkill(skill.id)}
+                            className="terminal-skill-checkbox"
                           />
                         ))}
                       </Box>
@@ -319,28 +397,53 @@ function App() {
             </Box>
           </Box>
 
+          {selectedSkillLabels.length > 0 ? (
+            <Box display="flex" flexWrap="wrap" gap="2" className="terminal-skill-tags">
+              {selectedSkillLabels.map((label) => (
+                <Box
+                  key={label}
+                  className="terminal-skill-tag"
+                  borderWidth="1"
+                  borderStyle="solid"
+                  borderColor="neutral-surfaceHighlight"
+                  padding="1"
+                >
+                  <Text fontSize="caption" color="neutral-textLow">
+                    {label}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          ) : null}
+
           <Box
             as="form"
             onSubmit={handleSubmit}
             display="flex"
             flexDirection="column"
             gap="2"
-            className='here-im'
+            className="terminal-input"
             style={{ maxWidth: '1000px', width: '100%', margin: '0 auto' }}
           >
-            <ChatInput aiFocused={isLoading}>
-              <ChatInput.Field
-                id="chat-input"
-                value={input}
-                onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-                  setInput(event.target.value)
-                }
-                placeholder="Escreva sua mensagem para o agente..."
-                appearance="ai-generative"
-                lines={2}
-                maxLines={6}
-                disabled={isLoading}
-              />
+            <ChatInput aiFocused={isLoading} className="terminal-chat-input">
+              <Box display="flex" alignItems="flex-start" gap="2" className="terminal-input-row">
+                <Text color="neutral-textLow" className="terminal-prefix">
+                  lojista ~ %
+                </Text>
+                <ChatInput.Field
+                  id="chat-input"
+                  value={input}
+                  onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                    setInput(event.target.value)
+                  }
+                  placeholder="Digite seu comando..."
+                  appearance="ai-generative"
+                  lines={2}
+                  maxLines={6}
+                  disabled={isLoading}
+                  className="terminal-input-field"
+                />
+              </Box>
               <ChatInput.Actions>
                 <Text fontSize="caption" color="neutral-textLow">
                   Shift + Enter para quebrar linha
@@ -363,9 +466,10 @@ function App() {
               </ChatInput.Actions>
             </ChatInput>
           </Box>
-        </Box>
-      </AppShell.Body>
-    </AppShell>
+          </Box>
+        </AppShell.Body>
+      </AppShell>
+    </ThemeProvider>
   )
 }
 
