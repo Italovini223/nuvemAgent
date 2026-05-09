@@ -30,6 +30,8 @@ import {
   SparkleIcon,
   PaperPlaneTiltIcon ,
   WrenchIcon,
+  SunIcon,
+  MoonIcon,
 } from '@phosphor-icons/react'
 
 
@@ -319,6 +321,7 @@ function App() {
                 setThemeMode((current) => (current === 'dark' ? 'light' : 'dark'))
               }
             >
+              {themeMode === 'dark' ? <SunIcon size={20} /> : <MoonIcon size={20} />}
             </Button>
           </Box>
 
