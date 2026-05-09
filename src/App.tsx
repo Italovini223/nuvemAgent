@@ -11,16 +11,26 @@ import {
   Popover,
   Skeleton,
   Text,
+
 } from '@nimbus-ds/components'
 import { ThemeProvider } from '@nimbus-ds/styles'
 import { connect, iAmReady } from '@tiendanube/nexo'
 import { nexo } from './lib/nexo'
 import { api } from './lib/api'
 import { ChatMessage } from './components/ChatMessage'
+import { Sidebar } from './components/Sidebar'
 
-
-import MainIcon from './assets/main.svg?react'; 
-import BtnSendIcon from './assets/sendBtn.svg?react';
+// Phosphor Icons
+import {
+  ChatCircleDotsIcon ,
+  GearIcon ,
+  SignOutIcon,
+  PlusCircleIcon,
+  ListIcon,
+  SparkleIcon,
+  PaperPlaneTiltIcon ,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 
 
 type ChatMessageItem = {
@@ -32,25 +42,14 @@ type ChatMessageItem = {
   logs?: string[]
 }
 
-const imgLogo = 'http://localhost:3845/assets/a10b1d1410c6f578a1e320ec6848e73449c6e426.svg'
-const imgMenu = 'http://localhost:3845/assets/8bc4c71110f7f47033c9a41ac27e50d2270901f0.svg'
-const imgNewChat = 'http://localhost:3845/assets/9fc80916e3ecae1580db89f517b035c0a4185a0d.svg'
-const imgChatActive = 'http://localhost:3845/assets/369da6565857528ed4802339455d8f8cae70eae2.svg'
-const imgChat = 'http://localhost:3845/assets/212a514b896fc2004e0a518c0f4dbf8c28ad9fa3.svg'
-const imgSettings = 'http://localhost:3845/assets/14c4ff2b26a239fde2eaaaf96cfb8dda7829c336.svg'
-const imgLogout = 'http://localhost:3845/assets/d46f51ff2774a3654444472c23749be656a27a7b.svg'
-const imgTopbar = 'http://localhost:3845/assets/afe2f3744e329ea4a04044906bba7dadeeba9973.svg'
-const imgHero = 'http://localhost:3845/assets/83915f77d5ddafb84da1d1d4ff95b9a58b82b009.svg'
-const imgCard1 = 'http://localhost:3845/assets/7cc3f546b874f149cd95502fc7ef03c023c0dc72.svg'
-const imgCard2 = 'http://localhost:3845/assets/25041fad805304457d6a366132ac4079d5913c4f.svg'
-const imgCard3 = 'http://localhost:3845/assets/7d579221ab6130138310d04e8b11cf49f6923fd4.svg'
-const imgCard4 = 'http://localhost:3845/assets/fa23b67b2eb1ad3917773b54f9fabd67c551f406.svg'
-const imgAttach = 'http://localhost:3845/assets/f05471e84ce563f04f8106692922fa0882b74d71.svg'
-const imgDots = 'http://localhost:3845/assets/6509586204cba743f36cd9705c243e9f01ab808a.svg'
-const imgSend = 'http://localhost:3845/assets/a1ee3102a83e902b3b382a7bb75f9218bb53b0d6.svg'
-const imgVoice = 'http://localhost:3845/assets/d856026255836a0667a7e0d0e7d6dacbf4c8bd6b.svg'
-const imgTools = 'http://localhost:3845/assets/709a50260150e94ecab76e521a92eea1a214f1dc.svg'
-const imgChevron = 'http://localhost:3845/assets/bd2545df32b7cea2202511f1e8660113bbb77d89.svg'
+// Phosphor Icons
+const imgLogo = <ChatCircleDotsIcon  size={24} weight="fill" />
+const imgMenu = <ListIcon size={24} />
+const imgNewChat = <PlusCircleIcon size={24} />
+const imgChat = <ChatCircleDotsIcon  size={24} />
+const imgSettings = <GearIcon  size={24} />
+const imgLogout = <SignOutIcon size={24} />
+
 
 const SKILL_CATEGORIES = [
   {
@@ -134,32 +133,6 @@ const RECENT_CHATS = [
   },
 ]
 
-const QUICK_CARDS = [
-  {
-    id: 'sales',
-    title: 'Analise de Vendas',
-    description: 'Analisar desempenho de produtos e identificar tendencias',
-    icon: imgCard1,
-  },
-  {
-    id: 'inventory',
-    title: 'Gestao de Estoque',
-    description: 'Verificar produtos com baixo estoque e sugerir reposicao',
-    icon: imgCard2,
-  },
-  {
-    id: 'support',
-    title: 'Atendimento ao Cliente',
-    description: 'Gerar respostas para duvidas frequentes de clientes',
-    icon: imgCard3,
-  },
-  {
-    id: 'conversion',
-    title: 'Otimizacao de Conversao',
-    description: 'Sugerir melhorias para aumentar vendas na loja',
-    icon: imgCard4,
-  },
-]
 
 function App() {
   const [isConnected, setIsConnected] = useState(false)
@@ -292,6 +265,19 @@ function App() {
     setIsLoading(false)
   }
 
+  const handleNewChat = () => {
+    setMessages([])
+    setInput('')
+    setError(null)
+    setIsLoading(false)
+    setStreamingMessageId(null)
+  }
+
+  const handleLogout = () => {
+    // TODO: Implement logout logic
+    console.log('Logout clicked')
+  }
+
   if (!isConnected) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" minHeight="100vh">
@@ -309,41 +295,18 @@ function App() {
   return (
     <ThemeProvider theme={themeMode === 'dark' ? 'dark' : 'base'}>
       <Box className="na-app">
-        <Box className="na-sidebar">
-          <Box className="na-sidebar-header">
-            <Box className="na-logo">
-              <img src={imgLogo} alt="" className="na-logo-icon" />
-              <Text className="na-logo-text">Nuvemshop AI</Text>
-            </Box>
-            <Button type="button" className="na-icon-button" appearance="transparent">
-              <img src={imgMenu} alt="" />
-            </Button>
-          </Box>
-
-          <Box className="na-sidebar-section">
-            <Button type="button" className="na-new-chat" appearance="primary">
-              <img src={imgNewChat} alt="" />
-              Nova conversa
-            </Button>
-          </Box>
-
-          <Box className="na-sidebar-list">
-            {RECENT_CHATS.map((item) => (
-              <ChatMessage key={item.id} message={item} isLast={false} />
-            ))}
-          </Box>
-
-          <Box className="na-sidebar-footer">
-            <Button type="button" className="na-footer-button" appearance="transparent">
-              <img src={imgSettings} alt="" />
-              Configuracoes
-            </Button>
-            <Button type="button" className="na-footer-button" appearance="transparent">
-              <img src={imgLogout} alt="" />
-              Sair
-            </Button>
-          </Box>
-        </Box>
+        <Sidebar
+          logoIcon={imgLogo}
+          menuIcon={imgMenu}
+          newChatIcon={imgNewChat}
+          settingsIcon={imgSettings}
+          logoutIcon={imgLogout}
+          onMenuClick={() => console.log('Menu clicked')}
+          onNewChatClick={handleNewChat}
+          onSettingsClick={() => console.log('Settings clicked')}
+          onLogoutClick={handleLogout}
+          recentChats={RECENT_CHATS}
+        />
 
         <Box className="na-main">
           <Box className="na-topbar">
@@ -356,7 +319,6 @@ function App() {
                 setThemeMode((current) => (current === 'dark' ? 'light' : 'dark'))
               }
             >
-              <img src={imgTopbar} alt="" />
             </Button>
           </Box>
 
@@ -365,7 +327,7 @@ function App() {
               <Box className="na-content-inner">
                 <Box className="na-hero">
                   <Box className="na-hero-icon" data-mode="light">
-                    <MainIcon  />
+                    <SparkleIcon size={32} />
                   </Box>
                   <Text className="na-hero-title">Bem-vindo ao Nuvemshop AI</Text>
                   <Text className="na-hero-subtitle">
@@ -468,7 +430,7 @@ function App() {
                   disabled={!input.trim() || isLoading}
                 >
                   <Box data-mode="light">
-                    <BtnSendIcon />
+                    <PaperPlaneTiltIcon />
                   </Box>
                 </Button>
               </Box>
@@ -512,9 +474,8 @@ function App() {
                 }
               >
                 <Button type="button" appearance="transparent" className="na-tools-button">
-                  <img src={imgTools} alt="" />
+                 <WrenchIcon size={20} />
                   Ferramentas
-                  <img src={imgChevron} alt="" />
                 </Button>
               </Popover>
 
@@ -531,7 +492,7 @@ function App() {
               </Box>
             </Box>
 
-            <Text className="na-disclaimer">
+            <Text className="na-disclaimer" textAlign='center'>
               Nuvemshop AI pode cometer erros. Considere verificar informacoes importantes.
             </Text>
           </Box>

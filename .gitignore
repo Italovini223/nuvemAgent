@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+C:\Users\Gamer\AppData\Local\Temp\* --- IGNORE ---
