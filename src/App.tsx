@@ -192,6 +192,7 @@ function App() {
 
   useEffect(() => {
     document.body.dataset.theme = themeMode
+    document.documentElement.dataset.theme = themeMode
   }, [themeMode])
 
   const handleSubmit = async (event: FormEvent) => {

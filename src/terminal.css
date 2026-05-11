@@ -23,6 +23,7 @@
   --na-icon-bg: rgba(3, 2, 19, 0.1);
 }
 
+:root[data-theme='dark'],
 body[data-theme='dark'] {
   --na-bg: var(--nimbus-colors-neutral-background, #0a0a0a);
   --na-sidebar-bg: var(--nimbus-colors-neutral-surface, #1f2020);
@@ -37,6 +38,44 @@ body[data-theme='dark'] {
   --na-primary: #fafafa;
   --na-primary-text: #030213;
   --na-icon-bg: rgba(255, 255, 255, 0.08);
+}
+
+:where([class*='nimbus-theme-dark_variables'], [class*='nimbus-theme-nextDark_variables']) .na-app {
+  --na-bg: var(--nimbus-colors-neutral-background, #0a0a0a);
+  --na-sidebar-bg: var(--nimbus-colors-neutral-surface, #1f2020);
+  --na-border: var(--nimbus-colors-neutral-surfaceHighlight, #454545);
+  --na-text: var(--nimbus-colors-neutral-textHigh, #ffffff);
+  --na-muted: var(--nimbus-colors-neutral-textLow, #888888);
+  --na-placeholder: rgba(255, 255, 255, 0.5);
+  --na-card-bg: var(--nimbus-colors-neutral-surface, #1f2020);
+  --na-card-border: rgba(255, 255, 255, 0.08);
+  --na-input-bg: rgba(255, 255, 255, 0.08);
+  --na-topbar-bg: rgba(10, 10, 10, 0.9);
+  --na-primary: #fafafa;
+  --na-primary-text: #030213;
+  --na-icon-bg: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme='dark'] .na-app,
+body[data-theme='dark'] .na-app {
+  color: var(--na-text);
+}
+
+:root[data-theme='dark'] .na-app :where(button, input, textarea, select),
+body[data-theme='dark'] .na-app :where(button, input, textarea, select) {
+  color: var(--na-text);
+}
+
+:root[data-theme='dark'] .na-app :where([class*='nimbus'], [class*='nds-']),
+body[data-theme='dark'] .na-app :where([class*='nimbus'], [class*='nds-']) {
+  color: var(--na-text);
+  background-color: transparent;
+}
+
+:root[data-theme='dark'] .na-app :where([class*='nimbus'], [class*='nds-']) svg,
+body[data-theme='dark'] .na-app :where([class*='nimbus'], [class*='nds-']) svg {
+  color: var(--na-text);
+  fill: currentColor;
 }
 
 body,
