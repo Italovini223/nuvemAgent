@@ -561,6 +561,19 @@ body[data-theme='dark'] .na-chat-item.is-active {
   gap: 16px;
 }
 
+body[data-theme='dark'] .na-tools-panel,
+:root[data-theme='dark'] .na-tools-panel {
+  background: var(--na-card-bg);
+  color: var(--na-text);
+  border-color: var(--na-card-border);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme='dark'] .na-tools-panel :where(label, span, p, small),
+:root[data-theme='dark'] .na-tools-panel :where(label, span, p, small) {
+  color: var(--na-text);
+}
+
 .na-tools-title {
   font-size: 16px !important;
   line-height: 24px;
