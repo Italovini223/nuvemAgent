@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Box, Text } from '@nimbus-ds/components'
+import { MermaidChart } from './MermaidChart'
 
 type ChatMessageProps = {
   message: {
@@ -12,10 +13,11 @@ type ChatMessageProps = {
     logs?: string[]
   }
   isLast: boolean
+  themeMode: 'light' | 'dark'
   onStreamComplete?: (messageId: string) => void
 }
 
-export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessageProps) {
+export function ChatMessage({ message, isLast, themeMode, onStreamComplete }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const showCursor = isLast && (message.pending || message.streaming)
   const [visibleText, setVisibleText] = useState(
@@ -65,8 +67,31 @@ export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessagePr
           {children}
         </Box>
       ),
+      code: ({
+        inline,
+        className,
+        children,
+      }: {
+        inline?: boolean
+        className?: string
+        children?: ReactNode
+      }) => {
+        const raw = String(children ?? '').replace(/\n$/, '')
+        const isMermaid = className?.includes('language-mermaid')
+        if (!inline && isMermaid) {
+          return <MermaidChart chart={raw} themeMode={themeMode} />
+        }
+        if (inline) {
+          return <code className="na-md-code-inline">{raw}</code>
+        }
+        return (
+          <Box className="na-md-pre" as="pre">
+            <code className="na-md-code-block">{raw}</code>
+          </Box>
+        )
+      },
     }),
-    [],
+    [themeMode],
   )
 
   useEffect(() => {

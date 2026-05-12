@@ -497,6 +497,7 @@ function App() {
                     key={message.id}
                     message={message}
                     isLast={index === messages.length - 1}
+                    themeMode={themeMode}
                     onStreamComplete={handleStreamComplete}
                   />
                 ))}

@@ -476,6 +476,59 @@ body[data-theme='dark'] .na-md-table tbody tr:nth-child(odd),
   border-bottom: none;
 }
 
+.na-md-pre {
+  background: rgba(3, 2, 19, 0.06);
+  border: 1px solid var(--na-card-border);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 8px 0 12px;
+  overflow: auto;
+}
+
+body[data-theme='dark'] .na-md-pre,
+:root[data-theme='dark'] .na-md-pre {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.na-md-code-block {
+  font-size: 12px !important;
+  line-height: 18px;
+  color: var(--na-text);
+}
+
+.na-md-code-inline {
+  background: rgba(3, 2, 19, 0.08);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px !important;
+  line-height: 18px;
+}
+
+body[data-theme='dark'] .na-md-code-inline,
+:root[data-theme='dark'] .na-md-code-inline {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.na-mermaid-card {
+  border-radius: 16px;
+  border: 1px solid var(--na-card-border);
+  background: var(--na-card-bg);
+  padding: 16px;
+  margin: 8px 0 12px;
+  box-shadow: 0 12px 24px rgba(3, 2, 19, 0.06);
+}
+
+body[data-theme='dark'] .na-mermaid-card,
+:root[data-theme='dark'] .na-mermaid-card {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.na-mermaid svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 .na-message.is-user {
   margin-left: auto;
 }
