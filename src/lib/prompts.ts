@@ -22,3 +22,8 @@ export async function fetchPromptById(id: string): Promise<PromptInfo | null> {
     return null
   }
 }
+
+export async function executePrompt(name: string): Promise<unknown> {
+  const res = await api.post(`/api/prompts/${encodeURIComponent(name)}/execute`, {})
+  return res.data
+}

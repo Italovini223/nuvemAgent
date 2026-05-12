@@ -22,13 +22,13 @@ export function SidebarChatMessage({ message }: SidebarChatMessageProps) {
       cursor="pointer"
     >
       <Box flexShrink="0" data-theme="light">
-        <chatIcon />
+        
       </Box>
       <Box flexGrow="1" overflow="hidden">
         <Text
           className="na-chat-title"
     
-          truncate
+          
         >
           {message.title}
         </Text>

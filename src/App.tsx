@@ -37,7 +37,7 @@ import {
   ArticleIcon,
 } from '@phosphor-icons/react'
 import { QuickCard } from './components/QuickCard'
-import { fetchPrompts, fetchPromptById } from './lib/prompts'
+import { executePrompt, fetchPrompts, fetchPromptById } from './lib/prompts'
 import type { PromptInfo } from './lib/prompts'
 
 
@@ -262,17 +262,52 @@ function App() {
   const handleQuickCardClick = async (mcp_prompt: string) => {
     setError(null)
     setIsLoading(true)
+    const pendingId = crypto.randomUUID()
+    const userMessage: ChatMessageItem = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: mcp_prompt,
+    }
+    const pendingMessage: ChatMessageItem = {
+      id: pendingId,
+      role: 'assistant',
+      content: '',
+      pending: true,
+    }
+    setMessages((current) => [...current, userMessage, pendingMessage])
     try {
       const prompt = await fetchPromptById(mcp_prompt)
-      if (!prompt) {
-        setError('Prompt não encontrado.')
-        return
+      if (prompt) {
+        setCurrentPrompt(prompt)
       }
-      setCurrentPrompt(prompt)
-      setInput(prompt.template ?? '')
+
+      const result = await executePrompt(mcp_prompt)
+      const payload = (result ?? {}) as Record<string, unknown>
+      const reply =
+        (payload.message as string) ??
+        (payload.text as string) ??
+        (payload.response as string) ??
+        (payload.content as string) ??
+        ''
+
+      const assistantMessage: ChatMessageItem = {
+        id: pendingId,
+        role: 'assistant',
+        content: reply || 'Resposta recebida, mas sem conteudo para exibir.',
+        pending: false,
+        streaming: true,
+      }
+
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === pendingId ? assistantMessage : message,
+        ),
+      )
+      setStreamingMessageId(pendingId)
     } catch (err) {
       console.error(err)
-      setError('Erro ao carregar prompt.')
+      setMessages((current) => current.filter((message) => message.id !== pendingId))
+      setError('Erro ao executar prompt.')
     } finally {
       setIsLoading(false)
     }
