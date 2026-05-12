@@ -399,6 +399,83 @@ body[data-theme='dark'] .na-chat-item.is-active {
   max-width: 80%;
 }
 
+.na-message-text {
+  display: block;
+  color: var(--na-text);
+}
+
+.na-md-h3 {
+  font-size: 18px !important;
+  line-height: 26px;
+  margin: 0 0 8px;
+}
+
+.na-md-p {
+  font-size: 14px !important;
+  line-height: 22px;
+  margin: 0 0 10px;
+  color: var(--na-text);
+}
+
+.na-md-ul,
+.na-md-ol {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: var(--na-text);
+}
+
+.na-md-li {
+  font-size: 14px !important;
+  line-height: 22px;
+  margin-bottom: 6px;
+}
+
+.na-md-table-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--na-card-border);
+  background: var(--na-card-bg);
+  margin: 8px 0 12px;
+}
+
+.na-md-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.na-md-table thead {
+  background: rgba(3, 2, 19, 0.06);
+}
+
+body[data-theme='dark'] .na-md-table thead,
+:root[data-theme='dark'] .na-md-table thead {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.na-md-table tbody tr:nth-child(odd) {
+  background: rgba(3, 2, 19, 0.04);
+}
+
+body[data-theme='dark'] .na-md-table tbody tr:nth-child(odd),
+:root[data-theme='dark'] .na-md-table tbody tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.na-md-th,
+.na-md-td {
+  text-align: left;
+  font-size: 13px !important;
+  line-height: 20px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--na-card-border);
+  color: var(--na-text);
+}
+
+.na-md-table tbody tr:last-child .na-md-td {
+  border-bottom: none;
+}
+
 .na-message.is-user {
   margin-left: auto;
 }

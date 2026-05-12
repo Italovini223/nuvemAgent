@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Box, Text } from '@nimbus-ds/components'
 
 type ChatMessageProps = {
@@ -18,6 +20,53 @@ export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessagePr
   const showCursor = isLast && (message.pending || message.streaming)
   const [visibleText, setVisibleText] = useState(
     message.streaming ? '' : message.content,
+  )
+  const markdownComponents = useMemo(
+    () => ({
+      h3: ({ children }: { children?: ReactNode }) => (
+        <Text className="na-md-h3" as="h3">
+          {children}
+        </Text>
+      ),
+      p: ({ children }: { children?: ReactNode }) => (
+        <Text className="na-md-p" as="p">
+          {children}
+        </Text>
+      ),
+      ul: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-ul" as="ul">
+          {children}
+        </Box>
+      ),
+      ol: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-ol" as="ol">
+          {children}
+        </Box>
+      ),
+      li: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-li" as="li">
+          {children}
+        </Box>
+      ),
+      table: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-table-wrapper">
+          <Box className="na-md-table" as="table">
+            {children}
+          </Box>
+        </Box>
+      ),
+      th: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-th" as="th">
+          {children}
+        </Box>
+      ),
+      td: ({ children }: { children?: ReactNode }) => (
+        <Box className="na-md-td" as="td">
+          {children}
+        </Box>
+      ),
+    }),
+    [],
   )
 
   useEffect(() => {
@@ -78,11 +127,18 @@ export function ChatMessage({ message, isLast, onStreamComplete }: ChatMessagePr
               </span>
               {showCursor ? <span className="na-cursor">_</span> : null}
             </Text>
-          ) : (
+          ) : isUser ? (
             <Text className="na-message-text" whiteSpace="pre-wrap">
               {visibleText || '...'}
               {showCursor ? <span className="na-cursor">_</span> : null}
             </Text>
+          ) : (
+            <Box className="na-message-text">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {visibleText || '...'}
+              </ReactMarkdown>
+              {showCursor ? <span className="na-cursor">_</span> : null}
+            </Box>
           )}
         </Box>
       </Box>
