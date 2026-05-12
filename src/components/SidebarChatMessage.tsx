@@ -1,5 +1,4 @@
 import { Box, Text } from '@nimbus-ds/components'
-import type { ReactNode } from 'react'
 
 
 type SidebarChatMessageProps = {
@@ -28,15 +27,13 @@ export function SidebarChatMessage({ message }: SidebarChatMessageProps) {
       <Box flexGrow="1" overflow="hidden">
         <Text
           className="na-chat-title"
-          fontSize="small"
-          fontWeight={message.active ? 'bold' : 'normal'}
+    
           truncate
         >
           {message.title}
         </Text>
         <Text
           className="na-chat-time"
-          fontSize="extra-small"
           color="neutral-textLow"
         >
           {message.time}

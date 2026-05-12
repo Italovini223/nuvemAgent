@@ -334,6 +334,7 @@ body[data-theme='dark'] .na-chat-item.is-active {
   border-radius: 14px;
   background: var(--na-card-bg);
   border: 1px solid var(--na-card-border);
+  height: auto !important;
 }
 
 .na-feature-icon {

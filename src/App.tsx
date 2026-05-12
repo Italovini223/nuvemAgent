@@ -20,6 +20,8 @@ import { api } from './lib/api'
 import { ChatMessage } from './components/ChatMessage'
 import { Sidebar } from './components/Sidebar'
 
+import { QUICK_CARDS } from './utils/quickCards'
+
 // Phosphor Icons
 import {
   ChatCircleDotsIcon ,
@@ -32,7 +34,11 @@ import {
   WrenchIcon,
   SunIcon,
   MoonIcon,
+  ArticleIcon,
 } from '@phosphor-icons/react'
+import { QuickCard } from './components/QuickCard'
+import { fetchPrompts, fetchPromptById } from './lib/prompts'
+import type { PromptInfo } from './lib/prompts'
 
 
 type ChatMessageItem = {
@@ -94,6 +100,25 @@ const SKILL_CATEGORIES = [
       { id: 'get_customer', label: 'Ver Cliente' },
     ],
   },
+  {
+    title: 'Blog',
+    skills: [
+      { id: 'get_blog', label: 'Recuperar detalhes do blog' },
+      { id: 'list_blog_posts', label: 'Listar posts do blog' },
+      { id: 'get_blog_post', label: 'Recuperar post do blog' },
+      { id: 'create_blog_post', label: 'Criar post do blog' },
+      { id: 'update_blog_post', label: 'Atualizar post do blog' },
+      { id: 'delete_blog_post', label: 'Excluir post do blog' },
+    ],
+  },
+  {
+    title: 'Checkouts Abandonados',
+    skills: [
+      { id: 'list_abandoned_checkouts', label: 'Listar checkouts abandonados' },
+      { id: 'get_abandoned_checkout', label: 'Recuperar checkout abandonado' },
+      { id: 'add_coupon_to_abandoned_checkout', label: 'Aplicar cupom em checkout abandonado' },
+    ],
+  },
 ]
 
 const SKILL_OPTIONS = SKILL_CATEGORIES.flatMap((category) => category.skills)
@@ -147,12 +172,33 @@ function App() {
   const [skillsOpen, setSkillsOpen] = useState(false)
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light')
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
+  const [availablePrompts, setAvailablePrompts] = useState<PromptInfo[]>([])
+  const [currentPrompt, setCurrentPrompt] = useState<PromptInfo | null>(null)
+  const [loadingPrompts, setLoadingPrompts] = useState(false)
 
   const selectedCount = selectedSkills.length
   const selectedSkillLabels = useMemo(
     () => selectedSkills.map((skill) => SKILL_LABELS[skill] ?? skill),
     [selectedSkills],
   )
+  const featureCards = useMemo(() => {
+    if (availablePrompts && availablePrompts.length > 0) {
+      return availablePrompts.map((p, i) => ({
+        id: p.name ?? p.id ?? String(i),
+        title: p.title ?? p.name ?? 'Prompt',
+        description: p.description ?? '',
+        mcp_prompt: p.name ?? p.id ?? '',
+        icon: <ArticleIcon size={24} />,
+      }))
+    }
+    return QUICK_CARDS.map((card, i) => ({
+      id: String(i),
+      title: card.title,
+      description: card.description,
+      mcp_prompt: card.mcp_prompt,
+      icon: <card.icon size={24} />,
+    }))
+  }, [availablePrompts])
 
   const toggleSkill = (skillId: string) => {
     setSelectedSkills((current) =>
@@ -195,6 +241,43 @@ function App() {
     document.documentElement.dataset.theme = themeMode
   }, [themeMode])
 
+  useEffect(() => {
+    let active = true
+    setLoadingPrompts(true)
+    fetchPrompts()
+      .then((list) => {
+        if (!active) return
+        setAvailablePrompts(list)
+      })
+      .catch((err) => console.warn('Failed to load prompts', err))
+      .finally(() => {
+        if (active) setLoadingPrompts(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handleQuickCardClick = async (mcp_prompt: string) => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      const prompt = await fetchPromptById(mcp_prompt)
+      if (!prompt) {
+        setError('Prompt não encontrado.')
+        return
+      }
+      setCurrentPrompt(prompt)
+      setInput(prompt.template ?? '')
+    } catch (err) {
+      console.error(err)
+      setError('Erro ao carregar prompt.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     const trimmed = input.trim()
@@ -223,10 +306,13 @@ function App() {
     setError(null)
 
     try {
-      const response = await api.post('/api/chat', {
+      const payloadBody = {
         message: trimmed,
         ...(requestSkills.length > 0 ? { toolsToLoad: requestSkills } : {}),
-      })
+        ...(currentPrompt ? { mcpPrompt: currentPrompt.name ?? currentPrompt.id } : {}),
+      }
+
+      const response = await api.post('/api/chat', payloadBody)
 
       const payload = response.data ?? {}
       const reply =
@@ -340,19 +426,19 @@ function App() {
                   </Text>
                 </Box>
 
-                {/* <Box className="na-feature-grid">
-                  {QUICK_CARDS.map((card) => (
-                    <Box key={card.id} className="na-feature-card">
-                      <Box className="na-feature-icon">
-                        <img src={card.icon} alt="" />
+                      <Box className="na-feature-grid">
+                        {featureCards.map((card) => (
+                          <QuickCard
+                            key={card.id}
+                            id={card.id}
+                            title={card.title}
+                            description={card.description}
+                            mcp_prompt={card.mcp_prompt}
+                            icon={card.icon}
+                            onSelect={handleQuickCardClick}
+                          />
+                        ))}
                       </Box>
-                      <Box className="na-feature-content">
-                        <Text className="na-feature-title">{card.title}</Text>
-                        <Text className="na-feature-text">{card.description}</Text>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box> */}
 
                 <Box className="na-stats">
                   <Box className="na-stat">
